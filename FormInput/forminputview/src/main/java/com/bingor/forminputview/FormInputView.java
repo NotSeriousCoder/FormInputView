@@ -5,14 +5,19 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -25,6 +30,11 @@ public class FormInputView extends FrameLayout {
     private Paint paint;
     private String hint;
     private float strokeWidth = 5;
+    private int textOffset = 0;
+    private int textSizeHint = 0;
+    private int radius = 20;
+    private Rect hintRext = new Rect();
+
 
     public FormInputView(@NonNull Context context) {
         this(context, null);
@@ -39,51 +49,88 @@ public class FormInputView extends FrameLayout {
         paint = new Paint();
         setWillNotDraw(false);
 
-        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.FormInputView);
-        hint = ta.getString(R.styleable.FormInputView_hint);
-        ta.recycle();
+        if (attrs != null) {
+            TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.FormInputView);
+            hint = ta.getString(R.styleable.FormInputView_hint);
+            textSizeHint = ta.getDimensionPixelSize(R.styleable.FormInputView_textSizeHint, UnitConverter.sp2px(getContext(), 14));
+//            Log.d("HXB", "字号==" + );
+            ta.recycle();
+        }
+
+
+
     }
 
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+        if (!TextUtils.isEmpty(hint)) {
+            paint.setTextSize(textSizeHint);
+            paint.getTextBounds(hint, 0, hint.length(), hintRext);
+        }
+        if (changed) {
+            for (int i = 0; i < getChildCount(); i++) {
+                getChildAt(i).layout((int) (left + 4 * strokeWidth), (int) (top + strokeWidth + hintRext.height()), right, bottom);
+            }
+        }
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-
-        if (!TextUtils.isEmpty(hint)) {
-            Rect hintRext = new Rect();
-            paint.getTextBounds(hint, 0, hint.length(), hintRext);
-
-//            canvas.clipRect(new RectF(strokeWidth / 2 + 10, 0, strokeWidth / 2 + 10 + hintRext.width(), strokeWidth / 2 + 10 + hintRext.width()));
-//            canvas.drawColor(Color.WHITE, PorterDuff.Mode.CLEAR);
-
-            Path path = new Path();
-            path.moveTo(0, 0);
-            path.lineTo(strokeWidth + 30, 0);
-            path.lineTo(strokeWidth + 30, 10);
-            path.lineTo(strokeWidth + 30 + hintRext.width(), 10);
-            path.lineTo(strokeWidth + 30 + hintRext.width(), 0);
-            path.lineTo(getMeasuredWidth(), 0);
-            path.lineTo(getMeasuredWidth(), getMeasuredHeight());
-            path.lineTo(0, getMeasuredHeight());
-            path.lineTo(0, 0);
-            canvas.clipPath(path);
-        }
-
-
-        Log.d("HXB", "onDraw(Canvas canvas)===");
-
-        paint.setColor(Color.BLUE);
+        //设置空心
         paint.setStyle(Paint.Style.STROKE);
+        //设置笔画粗细度
         paint.setStrokeWidth(strokeWidth);
+        paint.setColor(Color.BLUE);
+        paint.setAntiAlias(true);
+        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
 
+        float paddingTop = strokeWidth;
+        if (!TextUtils.isEmpty(hint)) {
+//            paint.setTextSize(textSizeHint);
+//            paint.getTextBounds(hint, 0, hint.length(), hintRext);
+            paddingTop += hintRext.height() / 2f;
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            canvas.drawRoundRect(strokeWidth / 2, strokeWidth / 2, getMeasuredWidth() - strokeWidth / 2, getMeasuredHeight() - strokeWidth / 2, 20, 20, paint);
+            canvas.drawRoundRect(strokeWidth, paddingTop, getMeasuredWidth() - strokeWidth, getMeasuredHeight() - strokeWidth, radius, radius, paint);
         } else {
-            canvas.drawRoundRect(new RectF(strokeWidth / 2, strokeWidth / 2, getMeasuredWidth() - strokeWidth / 2, getMeasuredHeight() - strokeWidth / 2), 20, 20, paint);
+            canvas.drawRoundRect(new RectF(strokeWidth, paddingTop, getMeasuredWidth() - strokeWidth, getMeasuredHeight() - strokeWidth), radius, radius, paint);
         }
 
+        if (paddingTop > strokeWidth) {
+            paint.setStyle(Paint.Style.FILL);
+            paint.setStrokeWidth(strokeWidth + 2);
+            paint.setColor(getBgColor());
+//            Log.d("HXB", (radius + textOffset) + "," + strokeWidth + "," + (radius + textOffset + hintRext.width()) + "," + strokeWidth);
+            canvas.drawLine(radius + textOffset, paddingTop, radius + textOffset + hintRext.width() + textSizeHint, paddingTop, paint);
 
-//        canvas.restore();
+            int lineWidth = (radius + textOffset + hintRext.width() + textSizeHint) - (radius + textOffset);
+//            int textStartX = (int) ((lineWidth - hintRext.width()) / 2f + radius + textOffset);
+            int textStartX = (int) (textSizeHint / 2f + radius + textOffset);
+            paint.setTextSize(textSizeHint);
+            paint.setColor(Color.parseColor("#666666"));
+            canvas.drawText(hint, textStartX, strokeWidth + hintRext.height(), paint);
+        }
+    }
+
+
+    private int getBgColor() {
+        ColorDrawable background = null;
+        View view = this;
+        while (background == null) {
+            if (view == null) {
+                break;
+            }
+            background = (ColorDrawable) (view.getBackground());
+            if (view.getParent() instanceof View) {
+                view = (View) view.getParent();
+            }
+        }
+        if (background != null) {
+            return background.getColor();
+        }
+        return Color.RED;
     }
 }

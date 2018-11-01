@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="FormInputView">
         <attr name="hint" format="string" />
+        <attr name="textSizeHint" format="dimension" />
     </declare-styleable>
 </resources>
