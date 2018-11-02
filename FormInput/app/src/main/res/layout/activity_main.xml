@@ -7,17 +7,15 @@
 
     <com.bingor.forminputview.FormInputView
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        app:hint="123歌abc"
-        app:textSizeHint="12sp">
+        android:layout_height="wrap_content"
+        app:hint="123歌abgc"
+        app:inputType="text"
+        app:strokeWidth="2dp"
+        app:textSizeHint="12sp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="123歌abc" />
-
-
-    </com.bingor.forminputview.FormInputView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/holo_red_dark" />
 
 </LinearLayout>

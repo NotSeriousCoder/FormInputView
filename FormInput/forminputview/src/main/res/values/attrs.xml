@@ -3,5 +3,15 @@
     <declare-styleable name="FormInputView">
         <attr name="hint" format="string" />
         <attr name="textSizeHint" format="dimension" />
+        <attr name="strokeWidth" format="dimension" />
+        <attr name="inputType" format="enum">
+            <enum name="none" value="0" />
+            <enum name="number" value="1" />
+            <enum name="text" value="2" />
+            <enum name="phone" value="3" />
+            <enum name="numberPassword" value="4" />
+            <enum name="textPassword" value="5" />
+            <enum name="listSelecte" value="6" />
+        </attr>
     </declare-styleable>
 </resources>
