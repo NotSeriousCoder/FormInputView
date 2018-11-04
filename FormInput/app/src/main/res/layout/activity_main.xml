@@ -10,25 +10,12 @@
         android:layout_height="wrap_content"
         app:hint="123歌abgc"
         app:inputType="text"
-        app:strokeWidth="2dp"
+        app:strokeWidth="10dp"
         app:textSizeHint="12sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="@android:color/holo_red_dark" />
-    
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:background="@android:color/holo_red_dark" />
-
-
-
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="fdeasgr" />
 
 </LinearLayout>

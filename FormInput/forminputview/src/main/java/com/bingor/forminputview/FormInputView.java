@@ -44,6 +44,7 @@ public class FormInputView extends FrameLayout {
     private int textSizeHint = 0;
     private int radius = 20;
     private Rect hintRext = new Rect();
+    private int topPadding;
 
     //////////////View/////////////////
     private View rootView;
@@ -76,8 +77,10 @@ public class FormInputView extends FrameLayout {
             hint = ta.getString(R.styleable.FormInputView_hint);
             textSizeHint = ta.getDimensionPixelSize(R.styleable.FormInputView_textSizeHint, UnitConverter.sp2px(getContext(), 14));
             strokeWidth = ta.getDimensionPixelSize(R.styleable.FormInputView_strokeWidth, UnitConverter.dip2px(getContext(), 2));
-//            Log.d("HXB", "字号==" + );
+            Log.d("HXB", "strokeWidth==" + strokeWidth);
+            Log.d("HXB", "strokeWidth222==" + ta.getDimension(R.styleable.FormInputView_strokeWidth, UnitConverter.dip2px(getContext(), 2)));
             inputType = ta.getInteger(R.styleable.FormInputView_inputType, INPUTTYPE_TEXT);
+            topPadding = ta.getInteger(R.styleable.FormInputView_textPaddingTop, 0);
             ta.recycle();
         }
         initView();
@@ -91,7 +94,6 @@ public class FormInputView extends FrameLayout {
         viewClick = rootView.findViewById(R.id.view_m_view_form_input_p_click);
         cbPswSwitch = rootView.findViewById(R.id.cb_m_view_form_input_p_psw_switch);
 
-
         switch (inputType) {
             case INPUTTYPE_NONE:
                 viewClick.setVisibility(GONE);
@@ -99,26 +101,26 @@ public class FormInputView extends FrameLayout {
                 break;
             case INPUTTYPE_NUMBER:
                 viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
+//                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
                 break;
             case INPUTTYPE_TEXT:
                 viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_CLASS_TEXT);
+//                etInput.setInputType(InputType.TYPE_CLASS_TEXT);
 
                 break;
             case INPUTTYPE_PHONE:
                 viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
+//                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
 
                 break;
             case INPUTTYPE_NUMBERPASSWORD:
                 viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+//                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
 
                 break;
             case INPUTTYPE_TEXTPASSWORD:
                 viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+//                etInput.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
                 break;
             case INPUTTYPE_LISTSELECTE:
@@ -134,13 +136,15 @@ public class FormInputView extends FrameLayout {
         if (!TextUtils.isEmpty(hint)) {
             paint.setTextSize(textSizeHint);
             paint.getTextBounds(hint, 0, hint.length(), hintRext);
+            topPadding = Math.max(hintRext.height() / 2, topPadding);
         }
         setPadding(2 * Math.max(strokeWidth, radius),
-                Math.max(strokeWidth, hintRext.height()) + hintRext.height() / 2,
+                Math.max(strokeWidth, hintRext.height()) + hintRext.height() / 2 + topPadding,
                 2 * Math.max(strokeWidth, radius),
-                (int) (3 * strokeWidth));
+                strokeWidth);
+//        (int) (3 * strokeWidth)
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        Log.d("HXB", "wid,hei==" + MeasureSpec.getSize(widthMeasureSpec) + "," + MeasureSpec.getSize(heightMeasureSpec));
+//        Log.d("HXB", "wid,hei==" + MeasureSpec.getSize(widthMeasureSpec) + "," + MeasureSpec.getSize(heightMeasureSpec));
 //        for (int i = 0; i < getChildCount(); i++) {
 //            getChildAt(i).measure(MeasureSpec.makeMeasureSpec(300, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(3000, MeasureSpec.UNSPECIFIED));
 ////            getChildAt(i).measure(MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec) - 2 * radius, MeasureSpec.getMode(widthMeasureSpec)), MeasureSpec.makeMeasureSpec(100, MeasureSpec.UNSPECIFIED));
@@ -158,13 +162,23 @@ public class FormInputView extends FrameLayout {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 //        super.onLayout(changed, left, top, right, bottom);
 //        if (changed) {
+        top = 0;
+
+
         for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            top = (getMeasuredHeight() - topPadding - child.getMeasuredHeight()) / 2 + top;
+            bottom = top + child.getMeasuredHeight();
 //                getChildAt(i).layout((int) (left + 4 * strokeWidth), (int) (top + strokeWidth + hintRext.height()), right, bottom);
+            Log.d("HXB", "l,t,r,b==" + left + "," + top + "," + right + "," + bottom);
+//            top = (int) (top + Math.max(strokeWidth, hintRext.height()) + hintRext.height() / 2 + topPadding * 1.5f);
             getChildAt(i).layout(
                     left + 2 * Math.max(strokeWidth, radius),
-                    top + Math.max(strokeWidth, hintRext.height()) + hintRext.height() / 2,
+                    getPaddingTop(),
                     right - 2 * Math.max(strokeWidth, radius),
-                    (int) (bottom - 3 * strokeWidth));
+                    /*(int) (bottom - 3 * strokeWidth) + 100*/
+                    getPaddingTop() + child.getMeasuredHeight()
+            );
         }
 //        }
     }
@@ -182,9 +196,9 @@ public class FormInputView extends FrameLayout {
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            canvas.drawRoundRect(strokeWidth, paint.getStrokeWidth(), getMeasuredWidth() - strokeWidth, getMeasuredHeight() - strokeWidth, radius, radius, paint);
+            canvas.drawRoundRect(strokeWidth, paint.getStrokeWidth() + topPadding, getMeasuredWidth() - strokeWidth, getMeasuredHeight() - strokeWidth, radius, radius, paint);
         } else {
-            canvas.drawRoundRect(new RectF(strokeWidth, paint.getStrokeWidth(), getMeasuredWidth() - strokeWidth, getMeasuredHeight() - strokeWidth), radius, radius, paint);
+            canvas.drawRoundRect(new RectF(strokeWidth, paint.getStrokeWidth() + topPadding, getMeasuredWidth() - strokeWidth, getMeasuredHeight() - strokeWidth), radius, radius, paint);
         }
 
         if (!TextUtils.isEmpty(hint)) {
@@ -192,15 +206,20 @@ public class FormInputView extends FrameLayout {
             paint.setStrokeWidth(strokeWidth + 4);
             paint.setColor(getBgColor());
 //            Log.d("HXB", (radius + textOffset) + "," + strokeWidth + "," + (radius + textOffset + hintRext.width()) + "," + strokeWidth);
-            canvas.drawLine(strokeWidth * 1.5f + textOffset, paint.getStrokeWidth() - 4, strokeWidth * 1.5f + textOffset + hintRext.width() + textSizeHint, paint.getStrokeWidth() - 4, paint);
+            canvas.drawLine(strokeWidth * 1.5f + textOffset, paint.getStrokeWidth() - 4 + topPadding, strokeWidth * 1.5f + textOffset + hintRext.width() + textSizeHint, paint.getStrokeWidth() - 4 + topPadding, paint);
 
             int textStartX = (int) (1.5 * strokeWidth + textSizeHint / 2);
             paint.setTextSize(textSizeHint);
             paint.setColor(Color.parseColor("#666666"));
             Paint.FontMetricsInt fm = paint.getFontMetricsInt();
-            canvas.drawText(hint, textStartX, (strokeWidth + (fm.bottom - fm.ascent) /3), paint);
+            canvas.drawText(hint, textStartX, (strokeWidth + (fm.bottom - fm.ascent) / 3 + topPadding), paint);
             paint.setStrokeWidth(strokeWidth);
         }
+
+        paint.setStrokeWidth(30);
+        paint.setColor(Color.parseColor("#112233"));
+        canvas.drawLine(0, getPaddingTop(), 100, getPaddingTop(), paint);
+        canvas.drawLine(0, getMeasuredHeight() , 100, getMeasuredHeight() , paint);
     }
 
 
