@@ -18,4 +18,9 @@
         android:layout_height="2dp"
         android:background="@android:color/holo_red_dark" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="fdeasgr" />
+
 </LinearLayout>
