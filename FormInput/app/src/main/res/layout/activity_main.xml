@@ -5,17 +5,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:inputType="text"
+        android:paddingBottom="2dp" />
+
     <com.bingor.forminputview.FormInputView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:hint="123歌abgc"
-        app:inputType="text"
-        app:strokeWidth="10dp"
-        app:textSizeHint="12sp" />
+        app:hintOffset="4dp"
+        app:inputType="listSelecte"
+        app:strokeWidth="20dp"
+        app:textSizeHint="18sp" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
+        android:layout_marginTop="6dp"
         android:background="@android:color/holo_red_dark" />
+
+
+    <EditText
+        android:id="@+id/et_m_view_form_input_p_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:paddingBottom="2dp" />
 
 </LinearLayout>

@@ -16,6 +16,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -40,7 +41,7 @@ public class FormInputView extends FrameLayout {
     private Paint paint;
     private String hint;
     private int strokeWidth = 5;
-    private int textOffset = 0;
+    private int hintOffset;
     private int textSizeHint = 0;
     private int radius = 20;
     private Rect hintRext = new Rect();
@@ -51,7 +52,7 @@ public class FormInputView extends FrameLayout {
     private ImageView ivLeftIcon;
     private EditText etInput;
     private ImageView ivMore;
-    private View viewClick;
+    private View viewClick, viewInputReplace;
     private CheckBox cbPswSwitch;
 
 
@@ -71,14 +72,12 @@ public class FormInputView extends FrameLayout {
         paint = new Paint();
         setWillNotDraw(false);
 
-
         if (attrs != null) {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.FormInputView);
             hint = ta.getString(R.styleable.FormInputView_hint);
             textSizeHint = ta.getDimensionPixelSize(R.styleable.FormInputView_textSizeHint, UnitConverter.sp2px(getContext(), 14));
             strokeWidth = ta.getDimensionPixelSize(R.styleable.FormInputView_strokeWidth, UnitConverter.dip2px(getContext(), 2));
-            Log.d("HXB", "strokeWidth==" + strokeWidth);
-            Log.d("HXB", "strokeWidth222==" + ta.getDimension(R.styleable.FormInputView_strokeWidth, UnitConverter.dip2px(getContext(), 2)));
+            hintOffset = ta.getDimensionPixelSize(R.styleable.FormInputView_hintOffset, UnitConverter.dip2px(getContext(), 2));
             inputType = ta.getInteger(R.styleable.FormInputView_inputType, INPUTTYPE_TEXT);
             topPadding = ta.getInteger(R.styleable.FormInputView_textPaddingTop, 0);
             ta.recycle();
@@ -92,40 +91,37 @@ public class FormInputView extends FrameLayout {
         etInput = rootView.findViewById(R.id.et_m_view_form_input_p_input);
         ivMore = rootView.findViewById(R.id.iv_m_view_form_input_p_more);
         viewClick = rootView.findViewById(R.id.view_m_view_form_input_p_click);
+        viewInputReplace = rootView.findViewById(R.id.view_m_view_form_input_p_input_replace);
         cbPswSwitch = rootView.findViewById(R.id.cb_m_view_form_input_p_psw_switch);
 
         switch (inputType) {
             case INPUTTYPE_NONE:
                 viewClick.setVisibility(GONE);
-
                 break;
             case INPUTTYPE_NUMBER:
                 viewClick.setVisibility(GONE);
-//                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
+                etInput.setInputType(InputType.TYPE_CLASS_NUMBER);
                 break;
             case INPUTTYPE_TEXT:
                 viewClick.setVisibility(GONE);
-//                etInput.setInputType(InputType.TYPE_CLASS_TEXT);
-
+                etInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
                 break;
             case INPUTTYPE_PHONE:
                 viewClick.setVisibility(GONE);
-//                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_NORMAL);
-
+                etInput.setInputType(InputType.TYPE_CLASS_PHONE);
                 break;
             case INPUTTYPE_NUMBERPASSWORD:
                 viewClick.setVisibility(GONE);
-//                etInput.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-
+                etInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
                 break;
             case INPUTTYPE_TEXTPASSWORD:
                 viewClick.setVisibility(GONE);
-//                etInput.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-
+                etInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                 break;
             case INPUTTYPE_LISTSELECTE:
-                cbPswSwitch.setVisibility(GONE);
-
+                cbPswSwitch.setVisibility(VISIBLE);
+                viewInputReplace.setVisibility(VISIBLE);
+                etInput.setVisibility(GONE);
                 break;
         }
 
@@ -138,49 +134,53 @@ public class FormInputView extends FrameLayout {
             paint.getTextBounds(hint, 0, hint.length(), hintRext);
             topPadding = Math.max(hintRext.height() / 2, topPadding);
         }
-        setPadding(2 * Math.max(strokeWidth, radius),
-                Math.max(strokeWidth, hintRext.height()) + hintRext.height() / 2 + topPadding,
-                2 * Math.max(strokeWidth, radius),
-                strokeWidth);
-//        (int) (3 * strokeWidth)
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-//        Log.d("HXB", "wid,hei==" + MeasureSpec.getSize(widthMeasureSpec) + "," + MeasureSpec.getSize(heightMeasureSpec));
-//        for (int i = 0; i < getChildCount(); i++) {
-//            getChildAt(i).measure(MeasureSpec.makeMeasureSpec(300, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(3000, MeasureSpec.UNSPECIFIED));
-////            getChildAt(i).measure(MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec) - 2 * radius, MeasureSpec.getMode(widthMeasureSpec)), MeasureSpec.makeMeasureSpec(100, MeasureSpec.UNSPECIFIED));
-//        }
-//        int height = 0;
-//        for (int i = 0; i < getChildCount(); i++) {
-//            getChildAt(i).measure(widthMeasureSpec, heightMeasureSpec);
-//            height = Math.max(height, getChildAt(i).getMeasuredHeight());
-//        }
 
-//        super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(height + 2 * radius + hintRext.height(), MeasureSpec.getMode(heightMeasureSpec)));
+        setPadding(0, topPadding + Math.max(hintRext.height() / 2, strokeWidth), 0, strokeWidth);
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
+                (int) (MeasureSpec.getSize(widthMeasureSpec) - 2.2 * Math.max(strokeWidth, radius)),
+                MeasureSpec.EXACTLY
+        );
+
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                    child.getMeasuredHeight(),
+                    MeasureSpec.EXACTLY
+            );
+
+            child.measure(
+                    childWidthMeasureSpec,
+                    childHeightMeasureSpec
+            );
+        }
+
+//        Log.d("HXB", "etInput.getMeasuredHeight()===" + etInput.getMeasuredHeight());
+//        ViewGroup.LayoutParams lp = viewInputReplace.getLayoutParams();
+//        lp.height = etInput.getMeasuredHeight();
+//        viewInputReplace.setLayoutParams(lp);
+//        viewInputReplace.setMinimumHeight(etInput.getMeasuredHeight());
+
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-//        super.onLayout(changed, left, top, right, bottom);
-//        if (changed) {
-        top = 0;
-
-
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
-            top = (getMeasuredHeight() - topPadding - child.getMeasuredHeight()) / 2 + top;
+            left = (int) (left + 1.1 * Math.max(strokeWidth, radius));
+            right = (int) (right - 1.1 * Math.max(strokeWidth, radius));
+            top = topPadding + Math.max(hintRext.height() / 2, strokeWidth);
             bottom = top + child.getMeasuredHeight();
-//                getChildAt(i).layout((int) (left + 4 * strokeWidth), (int) (top + strokeWidth + hintRext.height()), right, bottom);
-            Log.d("HXB", "l,t,r,b==" + left + "," + top + "," + right + "," + bottom);
-//            top = (int) (top + Math.max(strokeWidth, hintRext.height()) + hintRext.height() / 2 + topPadding * 1.5f);
-            getChildAt(i).layout(
-                    left + 2 * Math.max(strokeWidth, radius),
-                    getPaddingTop(),
-                    right - 2 * Math.max(strokeWidth, radius),
-                    /*(int) (bottom - 3 * strokeWidth) + 100*/
-                    getPaddingTop() + child.getMeasuredHeight()
+
+            child.layout(
+                    left,
+                    top,
+                    right,
+                    bottom
             );
         }
-//        }
     }
 
     @Override
@@ -194,32 +194,34 @@ public class FormInputView extends FrameLayout {
         paint.setAntiAlias(true);
         canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
 
-
+        //strokeWidth / 2 --- 保证外框贴边
+        //topPadding --- 保证文字显示完全/符合用户自设padding
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            canvas.drawRoundRect(strokeWidth, paint.getStrokeWidth() + topPadding, getMeasuredWidth() - strokeWidth, getMeasuredHeight() - strokeWidth, radius, radius, paint);
+            canvas.drawRoundRect(strokeWidth / 2, strokeWidth / 2 + topPadding, getMeasuredWidth() - strokeWidth / 2, getMeasuredHeight() - strokeWidth / 2, radius, radius, paint);
         } else {
-            canvas.drawRoundRect(new RectF(strokeWidth, paint.getStrokeWidth() + topPadding, getMeasuredWidth() - strokeWidth, getMeasuredHeight() - strokeWidth), radius, radius, paint);
+            canvas.drawRoundRect(new RectF(strokeWidth / 2, strokeWidth / 2 + topPadding, getMeasuredWidth() - strokeWidth / 2, getMeasuredHeight() - strokeWidth / 2), radius, radius, paint);
         }
 
         if (!TextUtils.isEmpty(hint)) {
             paint.setStyle(Paint.Style.FILL);
             paint.setStrokeWidth(strokeWidth + 4);
             paint.setColor(getBgColor());
-//            Log.d("HXB", (radius + textOffset) + "," + strokeWidth + "," + (radius + textOffset + hintRext.width()) + "," + strokeWidth);
-            canvas.drawLine(strokeWidth * 1.5f + textOffset, paint.getStrokeWidth() - 4 + topPadding, strokeWidth * 1.5f + textOffset + hintRext.width() + textSizeHint, paint.getStrokeWidth() - 4 + topPadding, paint);
+//            Log.d("HXB", (radius + hintOffset) + "," + strokeWidth + "," + (radius + hintOffset + hintRext.width()) + "," + strokeWidth);
+            canvas.drawLine(strokeWidth * 1.5f + hintOffset, (paint.getStrokeWidth() - 4) / 2 + topPadding, strokeWidth * 1.5f + hintOffset + hintRext.width() + textSizeHint, (paint.getStrokeWidth() - 4) / 2 + topPadding, paint);
 
             int textStartX = (int) (1.5 * strokeWidth + textSizeHint / 2);
             paint.setTextSize(textSizeHint);
             paint.setColor(Color.parseColor("#666666"));
             Paint.FontMetricsInt fm = paint.getFontMetricsInt();
-            canvas.drawText(hint, textStartX, (strokeWidth + (fm.bottom - fm.ascent) / 3 + topPadding), paint);
+            canvas.drawText(hint, textStartX, (strokeWidth / 2 + (fm.bottom - fm.ascent) / 4 + topPadding), paint);
             paint.setStrokeWidth(strokeWidth);
         }
 
-        paint.setStrokeWidth(30);
-        paint.setColor(Color.parseColor("#112233"));
-        canvas.drawLine(0, getPaddingTop(), 100, getPaddingTop(), paint);
-        canvas.drawLine(0, getMeasuredHeight() , 100, getMeasuredHeight() , paint);
+//        paint.setStrokeWidth(3);
+//        paint.setColor(Color.parseColor("#112233"));
+//        int aa = topPadding + Math.max(hintRext.height(), strokeWidth);
+//        canvas.drawLine(0, 2 * aa, 1080, 2 * aa, paint);
+//        canvas.drawLine(0, 171, 100, 171, paint);
     }
 
 
