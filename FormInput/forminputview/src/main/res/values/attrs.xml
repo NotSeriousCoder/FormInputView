@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="FormInputView">
-        <attr name="hint" format="string" />
-        <attr name="textSizeHint" format="dimension" />
+        <attr name="title" format="string" />
+        <attr name="textSizeTitle" format="dimension" />
         <attr name="strokeWidth" format="dimension" />
-        <attr name="hintOffset" format="dimension" />
+        <attr name="titleOffset" format="dimension" />
         <attr name="textPaddingTop" format="integer" />
+        <attr name="showLeftIcon" format="boolean" />
+        <attr name="showPswSwitch" format="boolean" />
+        <attr name="showRightIcon" format="boolean" />
         <attr name="inputType" format="enum">
             <enum name="none" value="0" />
             <enum name="number" value="1" />

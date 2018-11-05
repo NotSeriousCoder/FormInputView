@@ -15,11 +15,11 @@
     <com.bingor.forminputview.FormInputView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:hint="123歌abgc"
-        app:hintOffset="4dp"
         app:inputType="listSelecte"
-        app:strokeWidth="20dp"
-        app:textSizeHint="18sp" />
+        app:strokeWidth="3dp"
+        app:textSizeTitle="18sp"
+        app:title="我23歌abgc我"
+        app:titleOffset="8dp" />
 
     <View
         android:layout_width="match_parent"

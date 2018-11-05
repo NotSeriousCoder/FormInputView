@@ -21,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -37,14 +38,14 @@ public class FormInputView extends FrameLayout {
     public static final int INPUTTYPE_TEXTPASSWORD = 5;
     public static final int INPUTTYPE_LISTSELECTE = 6;
 
-
+    //标题偏移量
+    private int titleOffset;
+    private Rect titleRect = new Rect();
+    private int textSizeTitle = 0;
     private Paint paint;
-    private String hint;
+    private String title;
     private int strokeWidth = 5;
-    private int hintOffset;
-    private int textSizeHint = 0;
     private int radius = 20;
-    private Rect hintRext = new Rect();
     private int topPadding;
 
     //////////////View/////////////////
@@ -52,7 +53,8 @@ public class FormInputView extends FrameLayout {
     private ImageView ivLeftIcon;
     private EditText etInput;
     private ImageView ivMore;
-    private View viewClick, viewInputReplace;
+    private View viewClick;
+    private TextView tvInputReplace;
     private CheckBox cbPswSwitch;
 
 
@@ -74,10 +76,10 @@ public class FormInputView extends FrameLayout {
 
         if (attrs != null) {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.FormInputView);
-            hint = ta.getString(R.styleable.FormInputView_hint);
-            textSizeHint = ta.getDimensionPixelSize(R.styleable.FormInputView_textSizeHint, UnitConverter.sp2px(getContext(), 14));
+            title = ta.getString(R.styleable.FormInputView_title);
+            textSizeTitle = ta.getDimensionPixelSize(R.styleable.FormInputView_textSizeTitle, UnitConverter.sp2px(getContext(), 14));
             strokeWidth = ta.getDimensionPixelSize(R.styleable.FormInputView_strokeWidth, UnitConverter.dip2px(getContext(), 2));
-            hintOffset = ta.getDimensionPixelSize(R.styleable.FormInputView_hintOffset, UnitConverter.dip2px(getContext(), 2));
+            titleOffset = ta.getDimensionPixelSize(R.styleable.FormInputView_titleOffset, UnitConverter.dip2px(getContext(), 2));
             inputType = ta.getInteger(R.styleable.FormInputView_inputType, INPUTTYPE_TEXT);
             topPadding = ta.getInteger(R.styleable.FormInputView_textPaddingTop, 0);
             ta.recycle();
@@ -91,7 +93,7 @@ public class FormInputView extends FrameLayout {
         etInput = rootView.findViewById(R.id.et_m_view_form_input_p_input);
         ivMore = rootView.findViewById(R.id.iv_m_view_form_input_p_more);
         viewClick = rootView.findViewById(R.id.view_m_view_form_input_p_click);
-        viewInputReplace = rootView.findViewById(R.id.view_m_view_form_input_p_input_replace);
+        tvInputReplace = rootView.findViewById(R.id.tv_m_view_form_input_p_input_replace);
         cbPswSwitch = rootView.findViewById(R.id.cb_m_view_form_input_p_psw_switch);
 
         switch (inputType) {
@@ -119,8 +121,8 @@ public class FormInputView extends FrameLayout {
                 etInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
                 break;
             case INPUTTYPE_LISTSELECTE:
-                cbPswSwitch.setVisibility(VISIBLE);
-                viewInputReplace.setVisibility(VISIBLE);
+                cbPswSwitch.setVisibility(GONE);
+                tvInputReplace.setVisibility(VISIBLE);
                 etInput.setVisibility(GONE);
                 break;
         }
@@ -129,13 +131,13 @@ public class FormInputView extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (!TextUtils.isEmpty(hint)) {
-            paint.setTextSize(textSizeHint);
-            paint.getTextBounds(hint, 0, hint.length(), hintRext);
-            topPadding = Math.max(hintRext.height() / 2, topPadding);
+        if (!TextUtils.isEmpty(title)) {
+            paint.setTextSize(textSizeTitle);
+            paint.getTextBounds(title, 0, title.length(), titleRect);
+            topPadding = Math.max(titleRect.height() / 2, topPadding);
         }
 
-        setPadding(0, topPadding + Math.max(hintRext.height() / 2, strokeWidth), 0, strokeWidth);
+        setPadding(0, topPadding + Math.max(titleRect.height() / 2, strokeWidth), 0, strokeWidth);
 
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
@@ -171,7 +173,7 @@ public class FormInputView extends FrameLayout {
             View child = getChildAt(i);
             left = (int) (left + 1.1 * Math.max(strokeWidth, radius));
             right = (int) (right - 1.1 * Math.max(strokeWidth, radius));
-            top = topPadding + Math.max(hintRext.height() / 2, strokeWidth);
+            top = topPadding + Math.max(titleRect.height() / 2, strokeWidth);
             bottom = top + child.getMeasuredHeight();
 
             child.layout(
@@ -202,24 +204,27 @@ public class FormInputView extends FrameLayout {
             canvas.drawRoundRect(new RectF(strokeWidth / 2, strokeWidth / 2 + topPadding, getMeasuredWidth() - strokeWidth / 2, getMeasuredHeight() - strokeWidth / 2), radius, radius, paint);
         }
 
-        if (!TextUtils.isEmpty(hint)) {
+        if (!TextUtils.isEmpty(title)) {
+            int lineStartX = strokeWidth + radius + titleOffset;
+            int lineEndX = (int) (strokeWidth + radius + titleOffset + titleRect.width() * 1.2f);
+            int textStartX = lineStartX + (lineEndX - lineStartX - titleRect.width()) / 2;
             paint.setStyle(Paint.Style.FILL);
             paint.setStrokeWidth(strokeWidth + 4);
             paint.setColor(getBgColor());
-//            Log.d("HXB", (radius + hintOffset) + "," + strokeWidth + "," + (radius + hintOffset + hintRext.width()) + "," + strokeWidth);
-            canvas.drawLine(strokeWidth * 1.5f + hintOffset, (paint.getStrokeWidth() - 4) / 2 + topPadding, strokeWidth * 1.5f + hintOffset + hintRext.width() + textSizeHint, (paint.getStrokeWidth() - 4) / 2 + topPadding, paint);
+//            Log.d("HXB", (radius + titleOffset) + "," + strokeWidth + "," + (radius + titleOffset + titleRect.width()) + "," + strokeWidth);
+            canvas.drawLine(lineStartX, (paint.getStrokeWidth() - 4) / 2 + topPadding, lineEndX, (paint.getStrokeWidth() - 4) / 2 + topPadding, paint);
 
-            int textStartX = (int) (1.5 * strokeWidth + textSizeHint / 2);
-            paint.setTextSize(textSizeHint);
+//            int textStartX = (int) (1.5 * strokeWidth + textSizeTitle / 2);
+            paint.setTextSize(textSizeTitle);
             paint.setColor(Color.parseColor("#666666"));
             Paint.FontMetricsInt fm = paint.getFontMetricsInt();
-            canvas.drawText(hint, textStartX, (strokeWidth / 2 + (fm.bottom - fm.ascent) / 4 + topPadding), paint);
+            canvas.drawText(title, textStartX, (strokeWidth / 2 + (fm.bottom - fm.ascent) / 4 + topPadding), paint);
             paint.setStrokeWidth(strokeWidth);
         }
 
 //        paint.setStrokeWidth(3);
 //        paint.setColor(Color.parseColor("#112233"));
-//        int aa = topPadding + Math.max(hintRext.height(), strokeWidth);
+//        int aa = topPadding + Math.max(titleRect.height(), strokeWidth);
 //        canvas.drawLine(0, 2 * aa, 1080, 2 * aa, paint);
 //        canvas.drawLine(0, 171, 100, 171, paint);
     }

@@ -24,11 +24,12 @@
                 android:layout_marginRight="6dp"
                 android:src="@drawable/ic_info" />
 
-            <View
-                android:id="@+id/view_m_view_form_input_p_input_replace"
+            <TextView
+                android:id="@+id/tv_m_view_form_input_p_input_replace"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
+                android:textColor="@color/gray_a"
                 android:visibility="gone" />
 
             <EditText
@@ -37,7 +38,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:paddingBottom="2dp" />
+                android:paddingBottom="2dp"
+                android:textColorHint="@color/gray_a" />
 
             <ImageView
                 android:id="@+id/iv_m_view_form_input_p_more"
