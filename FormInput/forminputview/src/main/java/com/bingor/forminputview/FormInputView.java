@@ -116,7 +116,6 @@ public class FormInputView extends FrameLayout {
             leftIconRes = ta.getResourceId(R.styleable.FormInputView_leftIcon, 0);
             pswSwitchIconRes = ta.getResourceId(R.styleable.FormInputView_pswSwitchIcon, 0);
             rightIconRes = ta.getResourceId(R.styleable.FormInputView_rightIcon, 0);
-            textColorTitle = ta.getColor(R.styleable.FormInputView_textColorTitle, getResources().getColor(R.color.gray_6));
             borderColor = ta.getColor(R.styleable.FormInputView_borderColor, getResources().getColor(R.color.default_border_color));
             switchBg = ta.getDrawable(R.styleable.FormInputView_switchBg);
             hint = ta.getString(R.styleable.FormInputView_hint);
@@ -125,9 +124,11 @@ public class FormInputView extends FrameLayout {
             maxLength = ta.getInteger(R.styleable.FormInputView_maxLength, -1);
             maxEms = ta.getInteger(R.styleable.FormInputView_maxEms, -1);
             maxLines = ta.getInteger(R.styleable.FormInputView_maxLines, -1);
+            textColorTitle = ta.getColor(R.styleable.FormInputView_textColorTitle, getResources().getColor(R.color.gray_6));
             textColorHighlight = ta.getColor(R.styleable.FormInputView_textColorHighlight, getResources().getColor(R.color.deep_green));
             textColorLink = ta.getColor(R.styleable.FormInputView_textColorLink, getResources().getColor(R.color.deep_blue));
-            textColorHint = ta.getColor(R.styleable.FormInputView_textColorTitle, getResources().getColor(R.color.gray_6));
+            textColorHint = ta.getColor(R.styleable.FormInputView_textColorHint, getResources().getColor(R.color.gray_6));
+            textColor = ta.getColor(R.styleable.FormInputView_textColor, getResources().getColor(R.color.gray_6));
             ta.recycle();
         }
         initView();
@@ -187,13 +188,10 @@ public class FormInputView extends FrameLayout {
             etInput.setMaxLines(maxLines);
         }
 
-        etInput.setHighlightColor();
-        android:
-        textColorHighlight = ""
-        android:
-        textColorLink = ""
-        android:
-        textColorHint = ""
+        etInput.setHighlightColor(textColorHighlight);
+        etInput.setLinkTextColor(textColorLink);
+        etInput.setHintTextColor(textColorHint);
+        etInput.setTextColor(textColor);
 
         switch (inputType) {
             case INPUTTYPE_NONE:
@@ -366,7 +364,13 @@ public class FormInputView extends FrameLayout {
 
         if (!TextUtils.isEmpty(title)) {
             int lineStartX = strokeWidth + radius + titleOffset;
-            int lineEndX = (int) (strokeWidth + radius + titleOffset + titleRect.width() * 1.2f);
+//            int lineEndX = (int) (lineStartX + titleRect.width() * 1.2f);
+            int lineEndX = lineStartX;
+            if (titleRect.width() * 0.2f > UnitConverter.dip2px(getContext(), 4)) {
+                lineEndX += titleRect.width() + UnitConverter.dip2px(getContext(), 4);
+            } else {
+                lineEndX += titleRect.width() * 1.2f;
+            }
             int textStartX = lineStartX + (lineEndX - lineStartX - titleRect.width()) / 2;
             paint.setStyle(Paint.Style.FILL);
             paint.setStrokeWidth(strokeWidth + 4);

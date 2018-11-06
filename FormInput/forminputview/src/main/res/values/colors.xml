@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="gray_a">#aaaaaa</color>
+    <color name="gray_9">#999999</color>
     <color name="gray_6">#666666</color>
     <color name="default_border_color">#6FB7FF</color>
     <color name="deep_green">#cc314C52</color>
