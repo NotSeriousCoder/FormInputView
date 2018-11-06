@@ -2,13 +2,22 @@
 <resources>
     <declare-styleable name="FormInputView">
         <attr name="title" format="string" />
+        <attr name="textColorTitle" format="color" />
+        <attr name="borderColor" format="color" />
         <attr name="textSizeTitle" format="dimension" />
+        <attr name="textSize" format="dimension" />
         <attr name="strokeWidth" format="dimension" />
         <attr name="titleOffset" format="dimension" />
         <attr name="textPaddingTop" format="integer" />
         <attr name="showLeftIcon" format="boolean" />
         <attr name="showPswSwitch" format="boolean" />
         <attr name="showRightIcon" format="boolean" />
+        <attr name="leftIcon" format="reference" />
+        <attr name="pswSwitchIcon" format="reference" />
+        <attr name="rightIcon" format="reference" />
+        <attr name="hint" format="string" />
+        <attr name="text" format="string" />
+        <attr name="switchBg" format="reference" />
         <attr name="inputType" format="enum">
             <enum name="none" value="0" />
             <enum name="number" value="1" />
@@ -18,5 +27,16 @@
             <enum name="textPassword" value="5" />
             <enum name="listSelecte" value="6" />
         </attr>
+
+        <attr name="lines" format="integer" />
+        <attr name="maxLength" format="integer" />
+        <attr name="maxEms" format="integer" />
+        <attr name="maxLines" format="integer" />
+
+        <attr name="textColorHighlight" format="color" />
+        <attr name="textColorLink" format="color" />
+        <attr name="textColorHint" format="color" />
+        <attr name="textColor" format="color" />
+
     </declare-styleable>
 </resources>

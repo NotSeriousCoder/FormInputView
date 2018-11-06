@@ -9,15 +9,22 @@ import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.Build;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -41,13 +48,33 @@ public class FormInputView extends FrameLayout {
     //标题偏移量
     private int titleOffset;
     private Rect titleRect = new Rect();
-    private int textSizeTitle = 0;
+    private int textSizeTitle, textSize;
     private Paint paint;
     private String title;
     private int strokeWidth = 5;
     private int radius = 20;
     private int topPadding;
+    private boolean isshowLeftIcon;
+    private boolean isShowPswSwitch;
+    private boolean isShowRightIcon;
+    private int leftIconRes;
+    private int pswSwitchIconRes;
+    private int rightIconRes;
+    private CharSequence hint;
+    private CharSequence text;
 
+    private Drawable switchBg;
+    private int lines;
+    private int maxLength;
+    private int maxEms;
+    private int maxLines;
+
+    private int textColorTitle;
+    private int borderColor;
+    private int textColorHighlight;
+    private int textColorLink;
+    private int textColorHint;
+    private int textColor;
     //////////////View/////////////////
     private View rootView;
     private ImageView ivLeftIcon;
@@ -78,13 +105,33 @@ public class FormInputView extends FrameLayout {
             TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.FormInputView);
             title = ta.getString(R.styleable.FormInputView_title);
             textSizeTitle = ta.getDimensionPixelSize(R.styleable.FormInputView_textSizeTitle, UnitConverter.sp2px(getContext(), 14));
+            textSize = ta.getDimensionPixelSize(R.styleable.FormInputView_textSize, UnitConverter.sp2px(getContext(), 12));
             strokeWidth = ta.getDimensionPixelSize(R.styleable.FormInputView_strokeWidth, UnitConverter.dip2px(getContext(), 2));
             titleOffset = ta.getDimensionPixelSize(R.styleable.FormInputView_titleOffset, UnitConverter.dip2px(getContext(), 2));
-            inputType = ta.getInteger(R.styleable.FormInputView_inputType, INPUTTYPE_TEXT);
+            inputType = ta.getInteger(R.styleable.FormInputView_inputType, INPUTTYPE_NONE);
             topPadding = ta.getInteger(R.styleable.FormInputView_textPaddingTop, 0);
+            isshowLeftIcon = ta.getBoolean(R.styleable.FormInputView_showLeftIcon, true);
+            isShowPswSwitch = ta.getBoolean(R.styleable.FormInputView_showPswSwitch, true);
+            isShowRightIcon = ta.getBoolean(R.styleable.FormInputView_showRightIcon, true);
+            leftIconRes = ta.getResourceId(R.styleable.FormInputView_leftIcon, 0);
+            pswSwitchIconRes = ta.getResourceId(R.styleable.FormInputView_pswSwitchIcon, 0);
+            rightIconRes = ta.getResourceId(R.styleable.FormInputView_rightIcon, 0);
+            textColorTitle = ta.getColor(R.styleable.FormInputView_textColorTitle, getResources().getColor(R.color.gray_6));
+            borderColor = ta.getColor(R.styleable.FormInputView_borderColor, getResources().getColor(R.color.default_border_color));
+            switchBg = ta.getDrawable(R.styleable.FormInputView_switchBg);
+            hint = ta.getString(R.styleable.FormInputView_hint);
+            text = ta.getString(R.styleable.FormInputView_text);
+            lines = ta.getInteger(R.styleable.FormInputView_lines, -1);
+            maxLength = ta.getInteger(R.styleable.FormInputView_maxLength, -1);
+            maxEms = ta.getInteger(R.styleable.FormInputView_maxEms, -1);
+            maxLines = ta.getInteger(R.styleable.FormInputView_maxLines, -1);
+            textColorHighlight = ta.getColor(R.styleable.FormInputView_textColorHighlight, getResources().getColor(R.color.deep_green));
+            textColorLink = ta.getColor(R.styleable.FormInputView_textColorLink, getResources().getColor(R.color.deep_blue));
+            textColorHint = ta.getColor(R.styleable.FormInputView_textColorTitle, getResources().getColor(R.color.gray_6));
             ta.recycle();
         }
         initView();
+
     }
 
     private void initView() {
@@ -96,44 +143,128 @@ public class FormInputView extends FrameLayout {
         tvInputReplace = rootView.findViewById(R.id.tv_m_view_form_input_p_input_replace);
         cbPswSwitch = rootView.findViewById(R.id.cb_m_view_form_input_p_psw_switch);
 
+        tvInputReplace.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        etInput.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+
+        if (!TextUtils.isEmpty(text)) {
+            etInput.setText(text);
+            tvInputReplace.setText(text);
+        }
+        if (!TextUtils.isEmpty(hint)) {
+            etInput.setHint(hint);
+            tvInputReplace.setHint(hint);
+        }
+
+        if (isshowLeftIcon) {
+            ivLeftIcon.setVisibility(VISIBLE);
+        } else {
+            ivLeftIcon.setVisibility(GONE);
+        }
+        if (leftIconRes != 0) {
+            ivLeftIcon.setImageResource(leftIconRes);
+        }
+        if (pswSwitchIconRes != 0) {
+            cbPswSwitch.setButtonDrawable(pswSwitchIconRes);
+        }
+        if (rightIconRes != 0) {
+            ivMore.setImageResource(rightIconRes);
+        }
+
+        if (switchBg != null) {
+            cbPswSwitch.setBackground(switchBg);
+        }
+
+        if (lines > 0) {
+            etInput.setLines(lines);
+        }
+        if (maxLength > 0) {
+            etInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxLength)});
+        }
+        if (maxEms > 0) {
+            etInput.setMaxEms(maxEms);
+        }
+        if (maxLines > 0) {
+            etInput.setMaxLines(maxLines);
+        }
+
+        etInput.setHighlightColor();
+        android:
+        textColorHighlight = ""
+        android:
+        textColorLink = ""
+        android:
+        textColorHint = ""
+
         switch (inputType) {
             case INPUTTYPE_NONE:
-                viewClick.setVisibility(GONE);
-                break;
-            case INPUTTYPE_NUMBER:
-                viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-                break;
             case INPUTTYPE_TEXT:
                 viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+                etInput.setVisibility(VISIBLE);
+                if (inputType == INPUTTYPE_TEXT) {
+                    etInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+                }
+                break;
+            case INPUTTYPE_NUMBER:
+                etInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+                viewClick.setVisibility(GONE);
+                etInput.setVisibility(VISIBLE);
                 break;
             case INPUTTYPE_PHONE:
-                viewClick.setVisibility(GONE);
                 etInput.setInputType(InputType.TYPE_CLASS_PHONE);
+                if (etInput.getFilters() == null || etInput.getFilters().length == 0) {
+                    etInput.setFilters(new InputFilter[]{new InputFilter.LengthFilter(11)});
+                }
+                viewClick.setVisibility(GONE);
+                etInput.setVisibility(VISIBLE);
                 break;
             case INPUTTYPE_NUMBERPASSWORD:
-                viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-                break;
             case INPUTTYPE_TEXTPASSWORD:
+                if (isShowPswSwitch) {
+                    cbPswSwitch.setVisibility(VISIBLE);
+                } else {
+                    cbPswSwitch.setVisibility(GONE);
+                }
                 viewClick.setVisibility(GONE);
-                etInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                etInput.setVisibility(VISIBLE);
+                cbPswSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            //如果是不能看到密码的情况下，
+                            etInput.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                        } else {
+                            //如果是能看到密码的状态下
+                            etInput.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                        }
+                    }
+                });
+                if (inputType == INPUTTYPE_NUMBERPASSWORD) {
+                    etInput.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+                } else {
+                    etInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                }
                 break;
             case INPUTTYPE_LISTSELECTE:
                 cbPswSwitch.setVisibility(GONE);
                 tvInputReplace.setVisibility(VISIBLE);
                 etInput.setVisibility(GONE);
+                if (isShowRightIcon) {
+                    ivMore.setVisibility(VISIBLE);
+                } else {
+                    ivMore.setVisibility(GONE);
+                }
                 break;
         }
 
     }
 
+
+    private int switchPrimaryHeight = 0;
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         if (!TextUtils.isEmpty(title)) {
-            paint.setTextSize(textSizeTitle);
-            paint.getTextBounds(title, 0, title.length(), titleRect);
+            titleRect = Utils.getTextSize(textSizeTitle, title);
             topPadding = Math.max(titleRect.height() / 2, topPadding);
         }
 
@@ -159,19 +290,48 @@ public class FormInputView extends FrameLayout {
             );
         }
 
-//        Log.d("HXB", "etInput.getMeasuredHeight()===" + etInput.getMeasuredHeight());
-//        ViewGroup.LayoutParams lp = viewInputReplace.getLayoutParams();
-//        lp.height = etInput.getMeasuredHeight();
-//        viewInputReplace.setLayoutParams(lp);
-//        viewInputReplace.setMinimumHeight(etInput.getMeasuredHeight());
+        if (ivLeftIcon.getVisibility() == VISIBLE || ivMore.getVisibility() == VISIBLE || cbPswSwitch.getVisibility() == VISIBLE) {
+            String text = "啦";
+            Rect rect = Utils.getTextSize(textSize, text);
 
+            ViewGroup.LayoutParams lp = null;
+            int rectHeight = (int) (rect.height() * 1.2f);
+            lp = ivLeftIcon.getLayoutParams();
+            lp.height = rectHeight;
+            lp.width = rectHeight;
+            ivLeftIcon.setLayoutParams(lp);
+
+            lp = ivMore.getLayoutParams();
+            lp.height = rectHeight;
+            lp.width = rectHeight;
+            ivMore.setLayoutParams(lp);
+//            Log.d("HXB", "ivMore------lp.height==" + lp.height + "  lp.height==" + lp.height);
+
+
+            if (switchPrimaryHeight == 0) {
+                switchPrimaryHeight = cbPswSwitch.getMeasuredHeight();
+            }
+            lp = cbPswSwitch.getLayoutParams();
+//            lp.height = rectHeight;
+//            lp.width = rectHeight;
+            if (rect.height() * 2 < switchPrimaryHeight) {
+                lp.height = (int) (rect.height() * 2f);
+                lp.width = (int) (rect.height() * 2f);
+            } else {
+                lp.height = (int) (rect.height() * 1.8f);
+                lp.width = (int) (rect.height() * 1.8f);
+            }
+//            Log.d("HXB", "lp.height==" + lp.height + "  lp.height==" + lp.height);
+            cbPswSwitch.setLayoutParams(lp);
+        }
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+//        Log.d("HXB", "left, top, right, bottom==" + left + "," + top + "," + right + "," + bottom);
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
-            left = (int) (left + 1.1 * Math.max(strokeWidth, radius));
+            left = (int) (1.1 * Math.max(strokeWidth, radius));
             right = (int) (right - 1.1 * Math.max(strokeWidth, radius));
             top = topPadding + Math.max(titleRect.height() / 2, strokeWidth);
             bottom = top + child.getMeasuredHeight();
@@ -192,7 +352,7 @@ public class FormInputView extends FrameLayout {
         paint.setStyle(Paint.Style.STROKE);
         //设置笔画粗细度
         paint.setStrokeWidth(strokeWidth);
-        paint.setColor(Color.BLUE);
+        paint.setColor(borderColor);
         paint.setAntiAlias(true);
         canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
 
@@ -216,7 +376,7 @@ public class FormInputView extends FrameLayout {
 
 //            int textStartX = (int) (1.5 * strokeWidth + textSizeTitle / 2);
             paint.setTextSize(textSizeTitle);
-            paint.setColor(Color.parseColor("#666666"));
+            paint.setColor(textColorTitle);
             Paint.FontMetricsInt fm = paint.getFontMetricsInt();
             canvas.drawText(title, textStartX, (strokeWidth / 2 + (fm.bottom - fm.ascent) / 4 + topPadding), paint);
             paint.setStrokeWidth(strokeWidth);
@@ -228,7 +388,6 @@ public class FormInputView extends FrameLayout {
 //        canvas.drawLine(0, 2 * aa, 1080, 2 * aa, paint);
 //        canvas.drawLine(0, 171, 100, 171, paint);
     }
-
 
     private int getBgColor() {
         ColorDrawable background = null;
@@ -247,4 +406,12 @@ public class FormInputView extends FrameLayout {
         }
         return Color.RED;
     }
+
+
+    public void setOnItemClickListener(OnClickListener onItemClickListener) {
+        if (tvInputReplace != null) {
+            tvInputReplace.setOnClickListener(onItemClickListener);
+        }
+    }
+
 }
