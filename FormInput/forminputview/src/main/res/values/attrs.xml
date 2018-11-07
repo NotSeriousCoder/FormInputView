@@ -6,6 +6,7 @@
         <attr name="borderColor" format="color" />
         <attr name="textSizeTitle" format="dimension" />
         <attr name="textSize" format="dimension" />
+        <attr name="radius" format="dimension" />
         <attr name="strokeWidth" format="dimension" />
         <attr name="titleOffset" format="dimension" />
         <attr name="textPaddingTop" format="integer" />
