@@ -245,6 +245,10 @@ public class FormInputView extends FrameLayout {
         etInput.setLinkTextColor(textColorLink);
         etInput.setHintTextColor(textColorHint);
         etInput.setTextColor(textColor);
+        tvInputReplace.setHighlightColor(textColorHighlight);
+        tvInputReplace.setLinkTextColor(textColorLink);
+        tvInputReplace.setHintTextColor(textColorHint);
+        tvInputReplace.setTextColor(textColor);
     }
 
 

@@ -30,9 +30,9 @@
             app:title="普通输入框">
 
             <!--<TextView-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:text="abcdefg" />-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="abcdefg" />-->
 
         </com.bingor.forminputview.FormInputView>
 
@@ -73,9 +73,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:borderColor="#F9FF73"
-            app:pswSwitchIcon="@drawable/selector_psw22"
             app:hint="只能输入数字哦"
             app:inputType="numberPassword"
+            app:pswSwitchIcon="@drawable/selector_psw22"
             app:showRightIcon="true"
             app:textSize="14sp"
             app:textSizeTitle="12sp"
