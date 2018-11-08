@@ -13,7 +13,7 @@
     implementation 'com.github.NotSeriousCoder:FormInputView:Tag'
     版本号请自行看releases
 
-### 简单使用方法，详细的使用方法请看Demo
+## 简单使用方法，详细的使用方法请看Demo
     <com.bingor.forminputview.FormInputView
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
