@@ -12,13 +12,29 @@
         android:paddingRight="12dp">
 
         <com.bingor.forminputview.FormInputView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            app:borderWidth="30dp"
+            app:maxLines="3"
+            app:radius="5dp" />
+
+        <com.bingor.forminputview.FormInputView
             android:id="@+id/fip_test1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            app:borderWidth="10dp"
             app:maxLines="3"
-            app:radius="100dp"
-            app:title="普通输入框" />
+            app:radius="0dp"
+            app:title="普通输入框">
+
+            <!--<TextView-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="abcdefg" />-->
+
+        </com.bingor.forminputview.FormInputView>
 
         <com.bingor.forminputview.FormInputView
             android:layout_width="match_parent"
@@ -28,7 +44,7 @@
             app:hint="只能输入数字哦"
             app:inputType="number"
             app:leftIcon="@drawable/ic_test"
-            app:switchBg="@drawable/selector_psw"
+            app:radius="1000dp"
             app:textColorHint="#4a12"
             app:textColorTitle="@color/colorAccent"
             app:textSize="14sp"
@@ -41,11 +57,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:borderColor="#80EBE9"
+            app:borderWidth="4dp"
             app:hint="请输入任意文字"
             app:inputType="text"
             app:showLeftIcon="false"
-            app:strokeWidth="4dp"
-            app:switchBg="@drawable/selector_psw"
             app:text="来一个没有左边图标的,边框粗一点怎么样"
             app:textColorTitle="@color/colorPrimaryDark"
             app:textSizeTitle="14sp"
@@ -58,10 +73,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             app:borderColor="#F9FF73"
+            app:pswSwitchIcon="@drawable/selector_psw22"
             app:hint="只能输入数字哦"
             app:inputType="numberPassword"
             app:showRightIcon="true"
-            app:switchBg="@drawable/selector_psw"
             app:textSize="14sp"
             app:textSizeTitle="12sp"
             app:title="数字密码输入框"

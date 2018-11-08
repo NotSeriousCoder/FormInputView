@@ -46,8 +46,6 @@ import static com.bingor.forminputview.InputType.*;
  * Created by HXB on 2018/10/31.
  */
 public class FormInputView extends FrameLayout {
-
-
     public static int ICON_DEFAULT_WIDTH;
 
     //标题偏移量
@@ -56,9 +54,8 @@ public class FormInputView extends FrameLayout {
     private int textSizeTitle, textSize;
     private Paint paint;
     private String title;
-    private int strokeWidth = 5;
+    private int borderWidth = 5;
     private int radius;
-    private int topPadding;
     private boolean showLeftIcon;
     private boolean showPswSwitch;
     private boolean showRightIcon;
@@ -112,11 +109,10 @@ public class FormInputView extends FrameLayout {
             title = ta.getString(R.styleable.FormInputView_title);
             textSizeTitle = ta.getDimensionPixelSize(R.styleable.FormInputView_textSizeTitle, UnitConverter.sp2px(getContext(), 14));
             textSize = ta.getDimensionPixelSize(R.styleable.FormInputView_textSize, UnitConverter.sp2px(getContext(), 12));
-            strokeWidth = ta.getDimensionPixelSize(R.styleable.FormInputView_strokeWidth, UnitConverter.dip2px(getContext(), 2));
+            borderWidth = ta.getDimensionPixelSize(R.styleable.FormInputView_borderWidth, UnitConverter.dip2px(getContext(), 2));
             titleOffset = ta.getDimensionPixelSize(R.styleable.FormInputView_titleOffset, UnitConverter.dip2px(getContext(), 2));
             radius = ta.getDimensionPixelSize(R.styleable.FormInputView_radius, UnitConverter.dip2px(getContext(), 10));
             inputType = ta.getInteger(R.styleable.FormInputView_inputType, INPUTTYPE_NONE);
-            topPadding = ta.getInteger(R.styleable.FormInputView_textPaddingTop, 0);
             showLeftIcon = ta.getBoolean(R.styleable.FormInputView_showLeftIcon, true);
             showPswSwitch = ta.getBoolean(R.styleable.FormInputView_showPswSwitch, true);
             showRightIcon = ta.getBoolean(R.styleable.FormInputView_showRightIcon, true);
@@ -259,29 +255,117 @@ public class FormInputView extends FrameLayout {
         setupPadding();
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         setupRadius();
+
+        //子控件的宽度=父控件的宽度-2*边框笔触宽度
+        //这样就不会踩线
         int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
-                (int) (MeasureSpec.getSize(widthMeasureSpec) - 2.2 * Math.max(strokeWidth, radius)),
+                (int) (MeasureSpec.getSize(widthMeasureSpec) - 2.2 * Math.max(borderWidth, radius)),
                 MeasureSpec.EXACTLY
         );
-
+        //给每个子控件设置上
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
-            int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                    child.getMeasuredHeight(),
-                    MeasureSpec.EXACTLY
-            );
-
             child.measure(
                     childWidthMeasureSpec,
-                    childHeightMeasureSpec
+                    heightMeasureSpec
             );
         }
-
         setupIconSize();
     }
 
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+//        Log.d("HXB", "left, top, right, bottom==" + left + "," + top + "," + right + "," + bottom);
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            //左右将需要的空间空出来（宽度取边框笔触宽度和边框弧度的较大值）
+            left = (int) (1.1 * Math.max(borderWidth, radius));
+            right = (int) (getMeasuredWidth() - 1.1 * Math.max(borderWidth, radius));
+            top = getPaddingTop();
+            bottom = top + child.getMeasuredHeight();
+
+            child.layout(
+                    left,
+                    top,
+                    right,
+                    bottom
+            );
+        }
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        //设置空心，因为要画空心圆角矩形
+        paint.setStyle(Paint.Style.STROKE);
+        //设置笔画粗细度
+        paint.setStrokeWidth(borderWidth);
+        paint.setColor(borderColor);
+        //开启抗锯齿
+        paint.setAntiAlias(true);
+        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
+
+        /**
+         * 因为绘画的时候，设定的xy点是笔触的中点
+         * 所以left right bottom都需要+-笔触宽度的一半(borderWidth / 2)，保证画出来的边框不会有一边在视线以外并且贴边
+         * top是例外，因为有文字，所以要getPaddingTop()/2
+         */
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            canvas.drawRoundRect(borderWidth / 2, getPaddingTop() / 2, getMeasuredWidth() - borderWidth / 2, getMeasuredHeight() - borderWidth / 2, radius, radius, paint);
+        } else {
+            canvas.drawRoundRect(new RectF(borderWidth / 2, getPaddingTop() / 2, getMeasuredWidth() - borderWidth / 2, getMeasuredHeight() - borderWidth / 2), radius, radius, paint);
+        }
+
+        if (!TextUtils.isEmpty(title)) {
+            titleRect = Utils.getTextSize(textSizeTitle, title);
+            /**
+             * 画一条线（颜色{@link #getBgColor()}），作为空白处用来画title
+             * 线的起始点X值：笔触宽度+弧度值+用户自定义标题偏移量
+             */
+            int lineStartX = borderWidth + radius + titleOffset;
+            //线的终点X值，则需要计算文字宽度来决定
+            int lineEndX = lineStartX;
+            //这里计算的是控件剩余可用于绘制的宽度，如果根本没地方了，直接结束绘制
+            int availableWidth = getMeasuredWidth() - borderWidth - radius - lineStartX;
+            if (availableWidth <= 0) {
+                return;
+            }
+            int textWidth = titleRect.width();
+            //如果标题过宽，则裁剪标题
+            //-8dp是因为需要预留空白，防止标题和边框过于靠近
+            if (textWidth > availableWidth - UnitConverter.dip2px(getContext(), 8)) {
+                title = getSuitableText(title, textSizeTitle, availableWidth - UnitConverter.dip2px(getContext(), 6));
+                titleRect = Utils.getTextSize(textSizeTitle, title);
+                textWidth = titleRect.width();
+            }
+            if (textWidth * 0.2f > UnitConverter.dip2px(getContext(), 4)) {
+                lineEndX += textWidth + UnitConverter.dip2px(getContext(), 4);
+            } else {
+                lineEndX += textWidth * 1.2f;
+            }
+            //标题起始点X值=空白线起始值X +( 空白线长度 - 标题长度 )/2
+            //( 空白线长度 - 标题长度 )/2 就是留白的长度
+            int textStartX = lineStartX + (lineEndX - lineStartX - textWidth) / 2;
+
+            paint.setStyle(Paint.Style.FILL);
+            paint.setStrokeWidth(borderWidth);
+            paint.setColor(getBgColor());
+            canvas.drawLine(lineStartX, getPaddingTop() / 2, lineEndX, getPaddingTop() / 2, paint);
+
+            paint.setTextSize(textSizeTitle);
+            paint.setColor(textColorTitle);
+            Paint.FontMetricsInt fm = paint.getFontMetricsInt();
+            //文字的绘制，并不是以字高的中点为(x,y)，而是以baseLine为准，所以位置并不好算，这里也是瞎蒙
+            canvas.drawText(title, textStartX, ((fm.bottom - fm.ascent) / 3 + getPaddingTop() / 2), paint);
+        }
+    }
+
+    /**
+     * 设置边框弧度
+     */
     private void setupRadius() {
-        int max = (getMeasuredHeight() - getPaddingTop() - getPaddingBottom()) / 2 + strokeWidth * 2;
+        //控制弧度半径不要超过一半的控件高度
+        int max = (getMeasuredHeight() - getPaddingTop() - getPaddingBottom()) / 2 + borderWidth * 2;
         if (radius > max) {
             radius = max;
         }
@@ -318,10 +402,14 @@ public class FormInputView extends FrameLayout {
         }
     }
 
+    /**
+     * 设置每个图标的大小/位置
+     */
     private void setupIconSize() {
         LinearLayout.LayoutParams lpParent = (LinearLayout.LayoutParams) viewContentParent.getLayoutParams();
         LinearLayout.LayoutParams lpSwitch = (LinearLayout.LayoutParams) cbPswSwitch.getLayoutParams();
         if (radius == 0) {
+            //边框弧度为0，增加6dp的左右margin，防止贴边
             lpParent.leftMargin = UnitConverter.dip2px(getContext(), 6);
             lpSwitch.rightMargin = UnitConverter.dip2px(getContext(), 6);
         } else {
@@ -334,6 +422,9 @@ public class FormInputView extends FrameLayout {
             String text = "啦";
             Rect rect = Utils.getTextSize(textSize, text);
             ViewGroup.LayoutParams lp = null;
+            /**
+             * 在图标显示的时候，将图标宽高设置为字高的1.2倍（最大不大于{@link ICON_DEFAULT_WIDTH}），防止图标和文字大小悬殊
+             */
             int rectHeight = (int) (rect.height() * 1.2f);
             if (rectHeight > ICON_DEFAULT_WIDTH) {
                 rectHeight = ICON_DEFAULT_WIDTH;
@@ -354,8 +445,6 @@ public class FormInputView extends FrameLayout {
                 switchPrimaryHeight = cbPswSwitch.getMeasuredHeight();
             }
             lp = cbPswSwitch.getLayoutParams();
-//            lp.height = rectHeight;
-//            lp.width = rectHeight;
             if (rect.height() * 2 < switchPrimaryHeight) {
                 lp.height = (int) (rect.height() * 2f);
                 lp.width = (int) (rect.height() * 2f);
@@ -368,86 +457,32 @@ public class FormInputView extends FrameLayout {
         }
     }
 
+    /**
+     * 初始化上下padding，存在两种情况
+     * 1.文字高度>边框笔触宽度
+     * 2.文字高度<边框笔触宽度
+     * 取较大值为topPadding
+     * bottomPadding则固定是边框的笔触宽度即可
+     */
     private void setupPadding() {
         if (!TextUtils.isEmpty(title)) {
             titleRect = Utils.getTextSize(textSizeTitle, title);
-            topPadding = Math.max(titleRect.height() / 2, topPadding);
-        }
-        setPadding(0, topPadding + Math.max(titleRect.height() / 2, strokeWidth), 0, strokeWidth);
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-//        Log.d("HXB", "left, top, right, bottom==" + left + "," + top + "," + right + "," + bottom);
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            left = (int) (1.1 * Math.max(strokeWidth, radius));
-            right = (int) (right - 1.1 * Math.max(strokeWidth, radius));
-            top = topPadding + Math.max(titleRect.height() / 2, strokeWidth);
-            bottom = top + child.getMeasuredHeight();
-
-            child.layout(
-                    left,
-                    top,
-                    right,
-                    bottom
-            );
-        }
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        titleRect = Utils.getTextSize(textSizeTitle, title);
-        //设置空心
-        paint.setStyle(Paint.Style.STROKE);
-        //设置笔画粗细度
-        paint.setStrokeWidth(strokeWidth);
-        paint.setColor(borderColor);
-        paint.setAntiAlias(true);
-        canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
-
-        //strokeWidth / 2 --- 保证外框贴边
-        //topPadding --- 保证文字显示完全/符合用户自设padding
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            canvas.drawRoundRect(strokeWidth / 2, strokeWidth / 2 + topPadding, getMeasuredWidth() - strokeWidth / 2, getMeasuredHeight() - strokeWidth / 2, radius, radius, paint);
+//            topPadding = Math.max(titleRect.height(), borderWidth);
+            setPadding(0, Math.max(titleRect.height(), borderWidth), 0, borderWidth);
         } else {
-            canvas.drawRoundRect(new RectF(strokeWidth / 2, strokeWidth / 2 + topPadding, getMeasuredWidth() - strokeWidth / 2, getMeasuredHeight() - strokeWidth / 2), radius, radius, paint);
-        }
-
-        if (!TextUtils.isEmpty(title)) {
-            int lineStartX = strokeWidth + radius + titleOffset;
-            int lineEndX = lineStartX;
-            int availableWidth = getMeasuredWidth() - strokeWidth - radius - lineStartX;
-            if (availableWidth <= 0) {
-                return;
-            }
-            int textWidth = titleRect.width();
-            if (textWidth > availableWidth - UnitConverter.dip2px(getContext(), 8)) {
-                title = getSuitableText(title, textSizeTitle, availableWidth - UnitConverter.dip2px(getContext(), 6));
-                titleRect = Utils.getTextSize(textSizeTitle, title);
-                textWidth = titleRect.width();
-            }
-            if (textWidth * 0.2f > UnitConverter.dip2px(getContext(), 4)) {
-                lineEndX += textWidth + UnitConverter.dip2px(getContext(), 4);
-            } else {
-                lineEndX += textWidth * 1.2f;
-            }
-
-            int textStartX = lineStartX + (lineEndX - lineStartX - textWidth) / 2;
-
-            paint.setStyle(Paint.Style.FILL);
-            paint.setStrokeWidth(strokeWidth + 4);
-            paint.setColor(getBgColor());
-            canvas.drawLine(lineStartX, (paint.getStrokeWidth() - 4) / 2 + topPadding, lineEndX, (paint.getStrokeWidth() - 4) / 2 + topPadding, paint);
-
-            paint.setTextSize(textSizeTitle);
-            paint.setColor(textColorTitle);
-            Paint.FontMetricsInt fm = paint.getFontMetricsInt();
-            canvas.drawText(title, textStartX, (strokeWidth / 2 + (fm.bottom - fm.ascent) / 4 + topPadding), paint);
+            setPadding(0, borderWidth, 0, borderWidth);
+//            topPadding = borderWidth;
         }
     }
 
+    /**
+     * 裁剪文字
+     *
+     * @param text           文字
+     * @param textSize       字号
+     * @param availableWidth 合适的宽度
+     * @return
+     */
     private String getSuitableText(String text, int textSize, int availableWidth) {
         while (Utils.getTextSize(textSize, text).width() > availableWidth) {
             text = text.substring(0, text.length() - 1);
@@ -459,6 +494,11 @@ public class FormInputView extends FrameLayout {
         return text;
     }
 
+    /**
+     * 获取背景颜色，当前没有的话，获取父控件的背景颜色，如果也没有，返回白色
+     *
+     * @return
+     */
     private int getBgColor() {
         ColorDrawable background = null;
         View view = this;
@@ -474,17 +514,17 @@ public class FormInputView extends FrameLayout {
         if (background != null) {
             return background.getColor();
         }
-        return Color.RED;
+        return Color.WHITE;
     }
 
+
+    //////////////////////////////////get set///////////////////////////////////////////////////////
     public void setOnItemClickListener(OnClickListener onItemClickListener) {
         if (tvInputReplace != null) {
             btClick.setOnClickListener(onItemClickListener);
         }
     }
 
-
-    //////////////////////////////////get set///////////////////////////////////////////////////////
     public int getTitleOffset() {
         return titleOffset;
     }
@@ -525,12 +565,12 @@ public class FormInputView extends FrameLayout {
         invalidate();
     }
 
-    public int getStrokeWidth() {
-        return strokeWidth;
+    public int getBorderWidth() {
+        return borderWidth;
     }
 
-    public void setStrokeWidth(int strokeWidth) {
-        this.strokeWidth = strokeWidth;
+    public void setBorderWidth(int borderWidth) {
+        this.borderWidth = borderWidth;
         setupPadding();
     }
 

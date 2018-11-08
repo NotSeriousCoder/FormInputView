@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 //                formInputView7.setTextSizeTitle(32);
 //                formInputView1.setTextSize(160);
 //                formInputView1.setTitle("啦啦啦啦啦啦啦啦啦啦");
-//                formInputView1.setStrokeWidth(46);
+//                formInputView1.setBorderWidth(46);
 //                formInputView1.setRadius(0);
 //                formInputView1.setShowLeftIcon(!formInputView1.isShowLeftIcon());
 //                formInputView7.setShowRightIcon(!formInputView7.isShowRightIcon());
