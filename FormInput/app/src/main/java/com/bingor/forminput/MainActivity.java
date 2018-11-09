@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -26,7 +27,8 @@ public class MainActivity extends AppCompatActivity {
         formInputView7.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getBaseContext(), "啦啦啦啦啦", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getBaseContext(), "啦啦啦啦啦", Toast.LENGTH_SHORT).show();
+                Log.d("HXB", "啦啦啦啦啦");
             }
         });
         findViewById(R.id.bt_test).setOnClickListener(new View.OnClickListener() {

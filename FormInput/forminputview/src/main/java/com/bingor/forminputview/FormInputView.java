@@ -47,6 +47,8 @@ import static com.bingor.forminputview.InputType.*;
  */
 public class FormInputView extends FrameLayout {
     public static int ICON_DEFAULT_WIDTH;
+    //可点击的间隔
+    public static int CLICKABLE_INTERVAL = 500;
 
     //标题偏移量
     private int titleOffset;
@@ -86,6 +88,8 @@ public class FormInputView extends FrameLayout {
     private CheckBox cbPswSwitch;
     private View btClick;
 
+    private long previousClick;
+    private OnClickListener onItemClickListener;
 
     ///////////////////////////////////////
     private int inputType = 0;
@@ -148,6 +152,18 @@ public class FormInputView extends FrameLayout {
         cbPswSwitch = rootView.findViewById(R.id.cb_m_view_form_input_p_psw_switch);
         btClick = rootView.findViewById(R.id.view_m_view_form_input_p_click);
         viewContentParent = rootView.findViewById(R.id.view_m_view_form_input_p_content_parent);
+
+        btClick.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (System.currentTimeMillis() - previousClick > CLICKABLE_INTERVAL) {
+                    previousClick = System.currentTimeMillis();
+                    if (onItemClickListener != null) {
+                        onItemClickListener.onClick(v);
+                    }
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -523,17 +539,18 @@ public class FormInputView extends FrameLayout {
 
 
     //////////////////////////////////get set///////////////////////////////////////////////////////
+
+    public static void setClickableInterval(int clickableInterval) {
+        CLICKABLE_INTERVAL = clickableInterval;
+    }
+
     public void setOnItemClickListener(OnClickListener onItemClickListener) {
-        if (tvInputReplace != null) {
-            btClick.setOnClickListener(onItemClickListener);
-        }
+        this.onItemClickListener = onItemClickListener;
     }
 
     @Override
     public void setClickable(boolean clickable) {
-        if (tvInputReplace != null) {
-            btClick.setClickable(clickable);
-        }
+        btClick.setClickable(clickable);
     }
 
     public int getTitleOffset() {
