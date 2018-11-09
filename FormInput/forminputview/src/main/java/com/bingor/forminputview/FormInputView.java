@@ -529,6 +529,13 @@ public class FormInputView extends FrameLayout {
         }
     }
 
+    @Override
+    public void setClickable(boolean clickable) {
+        if (tvInputReplace != null) {
+            btClick.setClickable(clickable);
+        }
+    }
+
     public int getTitleOffset() {
         return titleOffset;
     }
