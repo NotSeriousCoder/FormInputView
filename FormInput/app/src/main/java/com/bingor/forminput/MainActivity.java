@@ -47,7 +47,10 @@ public class MainActivity extends AppCompatActivity {
 //                formInputView4.setPswSwitchIconRes(R.drawable.selector_psw22);
 //                formInputView7.setRightIconRes(R.drawable.ic_test);
 //                formInputView7.setBorderColor(Color.parseColor("#88000000"));
-                formInputView7.setInputType(InputType.INPUTTYPE_NONE);
+//                formInputView7.setInputType(InputType.INPUTTYPE_NONE);
+
+                String aaa = formInputView1.getText().toString();
+                Log.d("HXB", formInputView1.getText().toString());
             }
         });
     }

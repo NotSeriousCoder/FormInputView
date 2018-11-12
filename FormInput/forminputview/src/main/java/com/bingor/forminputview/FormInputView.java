@@ -667,7 +667,11 @@ public class FormInputView extends FrameLayout {
     }
 
     public CharSequence getHint() {
-        return hint;
+        if (etInput.getVisibility() == VISIBLE) {
+            return etInput.getHint();
+        } else {
+            return tvInputReplace.getHint();
+        }
     }
 
     public void setHint(CharSequence hint) {
@@ -676,7 +680,11 @@ public class FormInputView extends FrameLayout {
     }
 
     public CharSequence getText() {
-        return text;
+        if (etInput.getVisibility() == VISIBLE) {
+            return etInput.getText();
+        } else {
+            return tvInputReplace.getText();
+        }
     }
 
     public void setText(CharSequence text) {
