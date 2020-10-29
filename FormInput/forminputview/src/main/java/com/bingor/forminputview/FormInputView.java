@@ -6,10 +6,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PaintFlagsDrawFilter;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.media.Image;
 import android.os.Build;
 import android.os.Handler;
@@ -137,6 +140,29 @@ public class FormInputView extends FrameLayout {
             textColorHint = ta.getColor(R.styleable.FormInputView_textColorHint, getResources().getColor(R.color.gray_6));
             textColor = ta.getColor(R.styleable.FormInputView_textColor, getResources().getColor(R.color.gray_6));
             ta.recycle();
+        } else {
+            textSizeTitle = UnitConverter.sp2px(getContext(), 14);
+            textSize = UnitConverter.sp2px(getContext(), 12);
+            borderWidth = UnitConverter.dip2px(getContext(), 2);
+            titleOffset = UnitConverter.dip2px(getContext(), 2);
+            radius = UnitConverter.dip2px(getContext(), 10);
+            inputType = INPUTTYPE_NONE;
+            showLeftIcon = true;
+            showPswSwitch = true;
+            showRightIcon = true;
+            leftIconRes = 0;
+            pswSwitchIconRes = 0;
+            rightIconRes = 0;
+            borderColor = getResources().getColor(R.color.default_border_color);
+            lines = -1;
+            maxLength = -1;
+            maxEms = -1;
+            maxLines = -1;
+            textColorTitle = getResources().getColor(R.color.gray_6);
+            textColorHighlight = getResources().getColor(R.color.deep_green);
+            textColorLink = getResources().getColor(R.color.deep_blue);
+            textColorHint = getResources().getColor(R.color.gray_6);
+            textColor = getResources().getColor(R.color.gray_6);
         }
         findView();
         initView();
@@ -331,9 +357,11 @@ public class FormInputView extends FrameLayout {
          * top是例外，因为有文字，所以要getPaddingTop()/2
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            canvas.drawRoundRect(borderWidth / 2, getPaddingTop() / 2, getMeasuredWidth() - borderWidth / 2, getMeasuredHeight() - borderWidth / 2, radius, radius, paint);
+            canvas.drawRoundRect(borderWidth / 2, getPaddingTop() / 2, getMeasuredWidth() - borderWidth / 2, getMeasuredHeight() - borderWidth / 2,
+                    radius, radius, paint);
         } else {
-            canvas.drawRoundRect(new RectF(borderWidth / 2, getPaddingTop() / 2, getMeasuredWidth() - borderWidth / 2, getMeasuredHeight() - borderWidth / 2), radius, radius, paint);
+            canvas.drawRoundRect(new RectF(borderWidth / 2, getPaddingTop() / 2, getMeasuredWidth() - borderWidth / 2,
+                    getMeasuredHeight() - borderWidth / 2), radius, radius, paint);
         }
 
         if (!TextUtils.isEmpty(title)) {
@@ -526,7 +554,9 @@ public class FormInputView extends FrameLayout {
             if (view == null) {
                 break;
             }
-            background = (ColorDrawable) (view.getBackground());
+            if (view.getBackground() != null && view.getBackground() instanceof ColorDrawable) {
+                background = (ColorDrawable) (view.getBackground());
+            }
             if (view.getParent() instanceof View) {
                 view = (View) view.getParent();
             }

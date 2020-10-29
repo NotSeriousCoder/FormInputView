@@ -11,108 +11,108 @@
         android:paddingLeft="12dp"
         android:paddingRight="12dp">
 
-        <com.bingor.forminputview.FormInputView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:borderWidth="30dp"
-            app:maxLines="3"
-            app:radius="5dp" />
+<!--        <com.bingor.forminputview.FormInputView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            app:borderWidth="30dp"-->
+<!--            app:maxLines="3"-->
+<!--            app:radius="5dp" />-->
 
-        <com.bingor.forminputview.FormInputView
-            android:id="@+id/fip_test1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:borderWidth="10dp"
-            app:maxLines="3"
-            app:radius="0dp"
-            app:title="普通输入框">
+<!--        <com.bingor.forminputview.FormInputView-->
+<!--            android:id="@+id/fip_test1"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            app:borderWidth="10dp"-->
+<!--            app:maxLines="3"-->
+<!--            app:radius="0dp"-->
+<!--            app:title="普通输入框">-->
 
-            <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="abcdefg" />-->
+<!--            &lt;!&ndash;<TextView&ndash;&gt;-->
+<!--            &lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+<!--            &lt;!&ndash;android:layout_height="wrap_content"&ndash;&gt;-->
+<!--            &lt;!&ndash;android:text="abcdefg" />&ndash;&gt;-->
 
-        </com.bingor.forminputview.FormInputView>
+<!--        </com.bingor.forminputview.FormInputView>-->
 
-        <com.bingor.forminputview.FormInputView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:borderColor="#66D81B60"
-            app:hint="只能输入数字哦"
-            app:inputType="number"
-            app:leftIcon="@drawable/ic_test"
-            app:radius="1000dp"
-            app:textColorHint="#4a12"
-            app:textColorTitle="@color/colorAccent"
-            app:textSize="14sp"
-            app:textSizeTitle="12sp"
-            app:title="数字输入框"
-            app:titleOffset="8dp" />
+<!--        <com.bingor.forminputview.FormInputView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            app:borderColor="#66D81B60"-->
+<!--            app:hint="只能输入数字哦"-->
+<!--            app:inputType="number"-->
+<!--            app:leftIcon="@drawable/ic_test"-->
+<!--            app:radius="1000dp"-->
+<!--            app:textColorHint="#4a12"-->
+<!--            app:textColorTitle="@color/colorAccent"-->
+<!--            app:textSize="14sp"-->
+<!--            app:textSizeTitle="12sp"-->
+<!--            app:title="数字输入框"-->
+<!--            app:titleOffset="8dp" />-->
 
-        <com.bingor.forminputview.FormInputView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:borderColor="#80EBE9"
-            app:borderWidth="4dp"
-            app:hint="请输入任意文字"
-            app:inputType="text"
-            app:showLeftIcon="false"
-            app:text="来一个没有左边图标的,边框粗一点怎么样"
-            app:textColorTitle="@color/colorPrimaryDark"
-            app:textSizeTitle="14sp"
-            app:title="单行文字输入框，这次标题也大一点，再给你偏右一点"
-            app:titleOffset="28dp" />
+<!--        <com.bingor.forminputview.FormInputView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            app:borderColor="#80EBE9"-->
+<!--            app:borderWidth="4dp"-->
+<!--            app:hint="请输入任意文字"-->
+<!--            app:inputType="text"-->
+<!--            app:showLeftIcon="false"-->
+<!--            app:text="来一个没有左边图标的,边框粗一点怎么样"-->
+<!--            app:textColorTitle="@color/colorPrimaryDark"-->
+<!--            app:textSizeTitle="14sp"-->
+<!--            app:title="单行文字输入框，这次标题也大一点，再给你偏右一点"-->
+<!--            app:titleOffset="28dp" />-->
 
-        <com.bingor.forminputview.FormInputView
-            android:id="@+id/fip_test4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:borderColor="#F9FF73"
-            app:hint="只能输入数字哦"
-            app:inputType="numberPassword"
-            app:pswSwitchIcon="@drawable/selector_psw22"
-            app:showRightIcon="true"
-            app:textSize="14sp"
-            app:textSizeTitle="12sp"
-            app:title="数字密码输入框"
-            app:titleOffset="8dp" />
+<!--        <com.bingor.forminputview.FormInputView-->
+<!--            android:id="@+id/fip_test4"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            app:borderColor="#F9FF73"-->
+<!--            app:hint="只能输入数字哦"-->
+<!--            app:inputType="numberPassword"-->
+<!--            app:pswSwitchIcon="@drawable/selector_psw22"-->
+<!--            app:showRightIcon="true"-->
+<!--            app:textSize="14sp"-->
+<!--            app:textSizeTitle="12sp"-->
+<!--            app:title="数字密码输入框"-->
+<!--            app:titleOffset="8dp" />-->
 
-        <com.bingor.forminputview.FormInputView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:borderColor="#1F6A66"
-            app:hint="请输入密码"
-            app:inputType="textPassword"
-            app:showRightIcon="false"
-            app:textSize="16sp"
-            app:textSizeTitle="12sp"
-            app:title="普通密码输入框"
-            app:titleOffset="8dp" />
+<!--        <com.bingor.forminputview.FormInputView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            app:borderColor="#1F6A66"-->
+<!--            app:hint="请输入密码"-->
+<!--            app:inputType="textPassword"-->
+<!--            app:showRightIcon="false"-->
+<!--            app:textSize="16sp"-->
+<!--            app:textSizeTitle="12sp"-->
+<!--            app:title="普通密码输入框"-->
+<!--            app:titleOffset="8dp" />-->
 
-        <com.bingor.forminputview.FormInputView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:borderColor="#3F1F6A"
-            app:hint="请输入号码"
-            app:inputType="phone"
-            app:title="号码输入框" />
+<!--        <com.bingor.forminputview.FormInputView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            app:borderColor="#3F1F6A"-->
+<!--            app:hint="请输入号码"-->
+<!--            app:inputType="phone"-->
+<!--            app:title="号码输入框" />-->
 
-        <com.bingor.forminputview.FormInputView
-            android:id="@+id/fip_test7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            app:borderColor="#F165CF"
-            app:hint="请选择您的XX"
-            app:inputType="listSelecte"
-            app:title="点击选择框" />
+<!--        <com.bingor.forminputview.FormInputView-->
+<!--            android:id="@+id/fip_test7"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginTop="12dp"-->
+<!--            app:borderColor="#F165CF"-->
+<!--            app:hint="请选择您的XX"-->
+<!--            app:inputType="listSelecte"-->
+<!--            app:title="点击选择框" />-->
 
         <Button
             android:id="@+id/bt_test"
